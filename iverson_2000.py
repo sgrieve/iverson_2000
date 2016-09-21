@@ -116,12 +116,54 @@ def Iverson_Fig_5(T_star):
 
     ax = plt.gca()
     ax.set_xscale("log", nonposx='clip')
-    plt.xlabel('Normalised Time, $T^*$')
+    plt.xlabel('Normalised Time, $t^*$')
     plt.ylabel('R')
     legend = plt.legend()
     legend.get_frame().set_linewidth(0.)
     plt.tight_layout()
     plt.savefig('Fig_5.png')
+
+
+def Iverson_Fig_6():
+    '''
+    Reproduces Figure 6.
+    Calls the response function for a range of T* values and identifies the
+    peak R value and plots the peak t* and peak R values.
+    '''
+
+    T_Stars = np.linspace(0.001, 1000, 1000)
+    t_stars = np.linspace(0.1, 1000, 1000)
+
+    t_peak = []
+    R_peak = []
+
+    for T in T_Stars:
+        vals = []
+
+        for t in t_stars:
+            if t <= T:
+                vals.append(R_fn(t))
+            else:
+                vals.append(R_fn(t) - R_fn(t - T))
+
+        index = np.argmax(vals)
+
+        t_peak.append(t_stars[index])
+        R_peak.append(vals[index])
+
+    plt.plot(T_Stars, t_peak, 'k--', label='$t^*$ peak')
+    plt.plot(T_Stars, R_peak, 'r-', label='R peak')
+
+    ax = plt.gca()
+    ax.set_xscale("log", nonposx='clip')
+    ax.set_yscale("log", nonposy='clip')
+    plt.xlabel('Normalised Rainfall Duration, $T^*$')
+    plt.ylabel('Normalised Peak Time and Peak Response')
+    plt.ylim(0.001, 1000.)
+    legend = plt.legend(loc=2)
+    legend.get_frame().set_linewidth(0.)
+    plt.tight_layout()
+    plt.savefig('Fig_6.png')
 
 
 def Iverson_Eq_27ab(t, T, Do, alpha, Z, Iz_over_Kz=1., Iz_over_Kz_steady=0.1):
@@ -135,6 +177,7 @@ def Iverson_Eq_27ab(t, T, Do, alpha, Z, Iz_over_Kz=1., Iz_over_Kz_steady=0.1):
 
     D_hat = D_hat_fn(Do, alpha)
     t_star = t_T_star_fn(t, D_hat, Z)
+
     T_star = t_T_star_fn(T, D_hat, Z)
     beta = Beta_fn(alpha, Iz_over_Kz_steady)
 
@@ -150,20 +193,22 @@ def Iverson_Fig_7(t, T, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     Reproduces Figure 7. Currently does not work.
     '''
 
-    Zs = np.linspace(0.01, 6., 1000)
+    Zs = np.linspace(0.01, 6., 10)
     beta = Beta_fn(alpha, Iz_over_Kz_steady)
 
     psi = []
     beta_line = []
+
     for Z in Zs:
         psi_ = Iverson_Eq_27ab(t, T, Do, alpha, Z)
+        print Z, psi_ * Z
         psi.append(psi_ * Z)
         beta_line.append(beta * Z)
 
     plt.gca().invert_yaxis()
     plt.plot(psi, Zs)
     plt.plot(beta_line, Zs, 'k--', label='$\\beta$ Line')
-    #plt.xlim(-2, 5)
+    # plt.xlim(-2, 5)
     legend = plt.legend()
     legend.get_frame().set_linewidth(0.)
     plt.xlabel('Pressure head (m)')
@@ -171,6 +216,7 @@ def Iverson_Fig_7(t, T, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     plt.tight_layout()
     plt.show()
 
+
 # Iverson_Fig_5(10.)
-Iverson_Fig_7(6., 10., 0.000001,
-              math.radians(15.), 1., 0.1)
+# Iverson_Fig_7(6., 10., 0.000001, math.radians(15.), 1., 0.1)
+# Iverson_Fig_6()
