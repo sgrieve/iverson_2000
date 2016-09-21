@@ -12,6 +12,12 @@ rcParams['ytick.direction'] = 'out'
 
 
 def erfc(x):
+    '''
+    Apply the math.erfc() function to an array or list of values, returning a
+    numpy array.
+
+    Not currently used, but may be useful.
+    '''
     data = []
     for x in X:
         data.append(math.erfc(x))
@@ -20,11 +26,22 @@ def erfc(x):
 
 
 def R_fn(t_star):
+    '''
+    Compute the response function for a numpy array of t* values.
+
+    Equation 27e
+    '''
     return (np.sqrt(t_star / np.pi) * np.exp(-1. / t_star) -
             math.erfc(1. / np.sqrt(t_star)))
 
 
 def Beta_fn(alpha, Iz_over_Kz):
+    '''
+    Calculate the beta constant used in equation 27a and b.
+
+    Alpha is the gradient and Iz_over_Kz is the normalised vertical infiltration
+    rate, Iverson sets this to 1. or 0.5 in Figures 7 and 8.
+    '''
     return (np.cos(alpha) ** 2.) * Iz_over_Kz
 
 
@@ -36,22 +53,42 @@ def Z_fn(x, z, alpha):
 
 
 def D_hat_fn(Do, alpha):
+    '''
+    Equation 26c - compute an effective hydraulic diffusivity.
+
+    Do is a reference diffusivity and alpha is the slope gradient.
+    '''
     return 4. * Do * (np.cos(alpha) ** 2.)
 
 
 def t_T_star_fn(t, D_hat, Z):
+    '''
+    Equation 27c and 27d to nondimensionalise the time parameters.
+
+    Both have the same form, but c takes t (time) whereas d takes T (rainfall
+    duration).
+    '''
     return t / ((Z * Z) * D_hat)
 
 
 def days_to_secs(days):
+    '''
+    Convert a number of days to a number of seconds.
+    '''
     return days * 24. * 60. * 60.
 
 
 def weeks_to_secs(weeks):
+    '''
+    Convert a number of weeks to a number of seconds.
+    '''
     return days_to_secs(weeks * 7.)
 
 
 def Iverson_Eq_27ab(t, T, Do, alpha, d, Iz_over_Kz=1.):
+    '''
+    Equations 27 a and b
+    '''
     Z = 6.
     x = 10.
     #z = d
@@ -71,6 +108,9 @@ def Iverson_Eq_27ab(t, T, Do, alpha, d, Iz_over_Kz=1.):
 
 
 def Iverson_Fig_7(t, T, Do, alpha, Iz_over_Kz):
+    '''
+    Reproduces Figure 7. Currently does not work.
+    '''
 
     D = np.linspace(0.1, 6., 1000)
 
@@ -85,6 +125,10 @@ def Iverson_Fig_7(t, T, Do, alpha, Iz_over_Kz):
 
 
 def Iverson_Fig_5(T_star):
+    '''
+    Reproduces Figure 5. Pass in T* values of 0.1, 1.0 and 10 to generate
+    subplots A, B and C.
+    '''
 
     t_stars = np.linspace(0.1, 1000, 10000)
 
@@ -110,5 +154,5 @@ def Iverson_Fig_5(T_star):
     plt.tight_layout()
     plt.savefig('Fig_5.png')
 
-Iverson_Fig_5(10)
-Iverson_Fig_7(days_to_secs(6.), days_to_secs(10.), 0.000001, math.radians(15.), 1.)
+#Iverson_Fig_5(10.)
+#Iverson_Fig_7(days_to_secs(6.), days_to_secs(10.), 0.000001, math.radians(15.), 1.)
