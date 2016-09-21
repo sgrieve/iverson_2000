@@ -1,5 +1,5 @@
-import numpy as np
 import math
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
 
@@ -61,39 +61,14 @@ def D_hat_fn(Do, alpha):
     return 4. * Do * (np.cos(alpha) ** 2.)
 
 
-def Beta_fn(alpha, Iz_over_Kz):
+def Beta_fn(alpha, Iz_over_Kz_steady):
     '''
     Calculate the beta constant used in equation 27a and b.
 
-    Alpha is the gradient and Iz_over_Kz is the normalised vertical infiltration
-    rate, Iverson sets this to 1. or 0.5 in Figures 7 and 8.
+    Alpha is the gradient and Iz_over_Kz_steady is Steady state vertical water
+    influx rate, Iverson sets this to 0.1 in Figures 7 and 8.
     '''
-    return (np.cos(alpha) ** 2.) * Iz_over_Kz
-
-
-def Iverson_Eq_27ab(t, T, Do, alpha, d, Iz_over_Kz=1.):
-    '''
-    Equations 27 a and b
-
-    Does not work.
-    '''
-    Z = 6.
-    x = 10.
-    # z = d
-    # Z = d
-    # d = 2.
-    # Z = Z_fn(x, z, alpha)
-
-    D_hat = D_hat_fn(Do, alpha)
-    t_star = t_T_star_fn(t, D_hat, Z)
-    T_star = t_T_star_fn(T, D_hat, Z)
-    beta = Beta_fn(alpha, Iz_over_Kz)
-
-    if t <= T:
-        return (beta * (1. - (d / Z))) + (Iz_over_Kz * R_fn(t_star))
-    else:
-        return (beta * (1. - (d / Z))) + (Iz_over_Kz * (R_fn(t_star) -
-                                                        R_fn(t_star - T_star)))
+    return (np.cos(alpha) ** 2.) - Iz_over_Kz_steady
 
 
 def t_T_star_fn(t, D_hat, Z):
@@ -102,7 +77,7 @@ def t_T_star_fn(t, D_hat, Z):
 
     D_hat is an effective hydraulic diffusivity and Z is the elevation head.
 
-    Both have the same form, but c takes t (time) whereas d takes T (rainfall
+    Both have the same form, but 27c takes t (time) whereas d takes T (rainfall
     duration).
     '''
     return t / ((Z * Z) * D_hat)
@@ -149,23 +124,53 @@ def Iverson_Fig_5(T_star):
     plt.savefig('Fig_5.png')
 
 
-def Iverson_Fig_7(t, T, Do, alpha, Iz_over_Kz):
+def Iverson_Eq_27ab(t, T, Do, alpha, Z, Iz_over_Kz=1., Iz_over_Kz_steady=0.1):
+    '''
+    Equations 27 a and b
+
+    Does not work.
+    '''
+
+    d = 2.
+
+    D_hat = D_hat_fn(Do, alpha)
+    t_star = t_T_star_fn(t, D_hat, Z)
+    T_star = t_T_star_fn(T, D_hat, Z)
+    beta = Beta_fn(alpha, Iz_over_Kz_steady)
+
+    if t <= T:
+        return ((beta * (1. - (d / Z))) + (Iz_over_Kz * R_fn(t_star)))
+    else:
+        return ((beta * (1. - (d / Z))) + (Iz_over_Kz * (R_fn(t_star) -
+                R_fn(t_star - T_star))))
+
+
+def Iverson_Fig_7(t, T, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     '''
     Reproduces Figure 7. Currently does not work.
     '''
 
-    D = np.linspace(0.1, 6., 1000)
+    Zs = np.linspace(0.01, 6., 1000)
+    beta = Beta_fn(alpha, Iz_over_Kz_steady)
 
-    x = []
-
-    for d in D:
-        x.append(Iverson_Eq_27ab(days_to_secs(6.), days_to_secs(10.), 0.000001,
-                 math.radians(15.), d))
+    psi = []
+    beta_line = []
+    for Z in Zs:
+        psi_ = Iverson_Eq_27ab(t, T, Do, alpha, Z)
+        psi.append(psi_ * Z)
+        beta_line.append(beta * Z)
 
     plt.gca().invert_yaxis()
-    plt.plot(x, D)
+    plt.plot(psi, Zs)
+    plt.plot(beta_line, Zs, 'k--', label='$\\beta$ Line')
+    #plt.xlim(-2, 5)
+    legend = plt.legend()
+    legend.get_frame().set_linewidth(0.)
+    plt.xlabel('Pressure head (m)')
+    plt.ylabel('Depth (m)')
+    plt.tight_layout()
     plt.show()
 
 # Iverson_Fig_5(10.)
-# Iverson_Fig_7(days_to_secs(6.), days_to_secs(10.), 0.000001,
-#               math.radians(15.), 1.)
+Iverson_Fig_7(6., 10., 0.000001,
+              math.radians(15.), 1., 0.1)
