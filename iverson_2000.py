@@ -60,6 +60,15 @@ def D_hat_fn(Do, alpha):
     '''
     return 4. * Do * (np.cos(alpha) ** 2.)
 
+def Iz_over_Kz_steady(alpha,Iz_over_Kz):
+    '''
+    Calculate the Iz_over_Kz_steady constant used in beta.
+
+    Alpha is the gradient and Iz_over_Kz_steady is Steady state vertical water
+    influx rate, Iverson sets this to 0.1 in Figures 7 and 8, but he also defines
+    it as a function of Iz_over_Kz near the top of the first column on page 1902
+    ''' 
+    return np.cos(alpha)*Iz_over_Kz
 
 def Beta_fn(alpha, Iz_over_Kz_steady):
     '''
@@ -132,7 +141,7 @@ def Iverson_Fig_6():
     '''
 
     T_Stars = np.linspace(0.001, 1000, 1000)
-    t_stars = np.linspace(0.1, 1000, 1000)
+    t_stars = np.linspace(0.01, 1000, 1000)
 
     t_peak = []
     R_peak = []
@@ -180,7 +189,7 @@ def Iverson_Eq_27ab(t, T, Do, alpha, Z, Iz_over_Kz=1., Iz_over_Kz_steady=0.1):
 
     T_star = t_T_star_fn(T, D_hat, Z)
     beta = Beta_fn(alpha, Iz_over_Kz_steady)
-
+    
     if t <= T:
         return ((beta * (1. - (d / Z))) + (Iz_over_Kz * R_fn(t_star)))
     else:
@@ -195,7 +204,7 @@ def Iverson_Fig_7(t, T, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
 
     Zs = np.linspace(0.01, 6., 10)
     beta = Beta_fn(alpha, Iz_over_Kz_steady)
-
+    
     psi = []
     beta_line = []
 
@@ -204,6 +213,9 @@ def Iverson_Fig_7(t, T, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
         print Z, psi_ * Z
         psi.append(psi_ * Z)
         beta_line.append(beta * Z)
+        
+    print "beta_line is"
+    print beta_line
 
     plt.gca().invert_yaxis()
     plt.plot(psi, Zs)
@@ -217,6 +229,12 @@ def Iverson_Fig_7(t, T, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     plt.show()
 
 
-# Iverson_Fig_5(10.)
-# Iverson_Fig_7(6., 10., 0.000001, math.radians(15.), 1., 0.1)
+# Iverson_Fig_5(0.1)
+#Iverson_Fig_7(6., 10., 0.000001, math.radians(15.), 1., 0.1)
 # Iverson_Fig_6()
+
+a = [1,2,3,4,5]
+t = np.asarray(a)
+R = R_fn(t)
+print a
+
