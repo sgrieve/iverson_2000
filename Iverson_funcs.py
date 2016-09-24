@@ -25,19 +25,26 @@ def weeks_to_secs(weeks):
     return days_to_secs(weeks * 7.)
 
 
-def erfc(XX):
+def array_erfc(XX):
     '''
     Apply the math.erfc() function to an array or list of values, returning a
     numpy array.
 
     Not currently used, but may be useful.
     '''
+    
     X = np.asarray(XX)
+    print X.size
+    print "The array is:"
+    print X
+    
     data = []
-    for x in X:
-        data.append(math.erfc(x))
-
-    return np.array(data)
+    if X.size == 1:
+        return math.erfc(X) 
+    else:
+        for x in X:
+            data.append(math.erfc(x))
+            return np.array(data)
 
 
 def Z_fn(x, z, alpha):
@@ -50,7 +57,9 @@ def Z_fn(x, z, alpha):
     If Z and z share an orign, it simplifies to:
     return z / np.cos(alpha)
     '''
-    return (x * np.sin(alpha)) + (z * np.cos(alpha))
+    term1 = np.multiply(x,np.sin(alpha))
+    term2 = np.multiply(z,np.cos(alpha))
+    return ( np.add(term1,term2))
 
 
 def D_hat_fn(Do, alpha):
@@ -90,7 +99,10 @@ def t_T_star_fn(t, D_hat, Z):
     Both have the same form, but 27c takes t (time) whereas d takes T (rainfall
     duration).
     '''
-    return t / ((Z * Z) * D_hat)
+    Z2 = np.multiply(Z,Z)
+    denominator = np.multiply(Z2,D_hat)
+          
+    return np.divide(t,denominator)
 
 
 def R_fn(t_star):
@@ -99,11 +111,40 @@ def R_fn(t_star):
 
     Equation 27e
     '''
-    print "Getting the erfc of"
-    print 1. / np.sqrt(t_star)     
+    multiple_bit = np.multiply(np.sqrt(t_star / np.pi),np.exp(-1. / t_star)) 
+    one_ov_sqrt_tstar = 1. / np.sqrt(t_star)
     
-    return (np.sqrt(t_star / np.pi) * np.exp(-1. / t_star) -
-            math.erfc(1. / np.sqrt(t_star)))
+    print "Numbers are: "
+    print multiple_bit
+    print one_ov_sqrt_tstar
+    
+    print "is this the problem??"
+    print array_erfc(one_ov_sqrt_tstar)
+    
+    return np.subtract(multiple_bit,array_erfc(one_ov_sqrt_tstar))
+
+def psi(Z,beta,d,Iz_over_Kz,t_star,T_star):
+    '''
+    Compute psi from equation 27a and b
+    '''
+    
+    # This is effectively the steady state water table (or initial condition)
+    #
+    first_term = Z*beta-d    
+    
+    if t_star < T_star:
+        second_term = Z*Iz_over_Kz*R_fn(t_star)
+    else:
+        second_term = Z*Iz_over_Kz*(R_fn(t_star)-R_fn(t_star-T_star))
+        
+    psi = first_term+second_term
+    
+    return psi
+            
+        
+           
+        
+    
 
 
 def Iverson_Fig_5(T_star):
@@ -233,12 +274,12 @@ def Iverson_Fig_7(t, T, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     plt.show()
 
 
-#Iverson_Fig_5(0.1)
+# Iverson_Fig_5(0.1)
 #Iverson_Fig_7(6., 10., 0.000001, math.radians(15.), 1., 0.1)
 # Iverson_Fig_6()
 
-#a = [1,2,3,4,5]
-#t = np.asarray(a)
-#R = R_fn(t)
-#print a
+a = [1,2,3,4,5]
+t = np.asarray(a)
+R = R_fn(t)
+print a
 
