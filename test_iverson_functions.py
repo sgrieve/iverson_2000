@@ -12,7 +12,7 @@ import math
 
 def compare_linear_to_loop():
     
-    t_stars = np.linspace(0.1, 1000, 10)
+    t_stars = np.linspace(0.1, 10000, 10)
     
     print "t_stars are:"
     print t_stars
@@ -40,18 +40,20 @@ def compare_linear_to_loop():
     print "R2 is"
     print R2
     
-    
+    R2 = IvF.R_fn(0.0001)
+    print "R2 is"
+    print R2    
   
     alpha = math.radians(15.)
     Iz_over_Kz_steady = 0.1
     
-    Z = np.linspace(0.5, 6., 12)
+    Z = np.linspace(0.0, 6., 13)
     beta = IvF.Beta_fn(alpha, Iz_over_Kz_steady)   
     
     print "beta is: "
     print beta
     
-    t_star = 0.00000000001
+    t_star = 0.0001
     T_star = 10
     Iz_over_Kz = 1
     d = 2

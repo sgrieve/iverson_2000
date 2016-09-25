@@ -133,15 +133,21 @@ def psi(Z,beta,d,Iz_over_Kz,t_star,T_star):
     
     # This is effectively the steady state water table (or initial condition)
     #
-    first_term = Z*beta-d
+    first_term = beta*(Z-d)
+    print "first_term is: "
+    print first_term
 
-    print "R_fn is"
+
+
+    print "For a t_star of: "+str(t_star)+" R_fn is"
     print R_fn(t_star)    
     
     if t_star < T_star:
         second_term = Z*Iz_over_Kz*R_fn(t_star)
+        print "Second term is: " + str(second_term)
     else:
         second_term = Z*Iz_over_Kz*(R_fn(t_star)-R_fn(t_star-T_star))
+        print "Second term is (t_star > T_star): " + str(second_term)
         
     psi = first_term+second_term
     
