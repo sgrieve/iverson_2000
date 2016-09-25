@@ -34,9 +34,9 @@ def array_erfc(XX):
     '''
     
     X = np.asarray(XX)
-    print X.size
-    print "The array is:"
-    print X
+    #print X.size
+    #print "The array is:"
+    #print X
     
     data = []
     if X.size == 1:
@@ -111,16 +111,19 @@ def R_fn(t_star):
 
     Equation 27e
     '''
+    
     multiple_bit = np.multiply(np.sqrt(t_star / np.pi),np.exp(-1. / t_star)) 
     one_ov_sqrt_tstar = 1. / np.sqrt(t_star)
     
-    print "Numbers are: "
-    print multiple_bit
-    print one_ov_sqrt_tstar
+    #print "Numbers are (mulitply, one ov tstar): "
+    #print multiple_bit
+    #print one_ov_sqrt_tstar
     
-    print "is this the problem??"
-    print array_erfc(one_ov_sqrt_tstar)
+    #print "is this the problem??"
+    #print array_erfc(one_ov_sqrt_tstar)
     
+    #print "R_fn is"    
+    #print (np.subtract(multiple_bit,array_erfc(one_ov_sqrt_tstar)))
     return np.subtract(multiple_bit,array_erfc(one_ov_sqrt_tstar))
 
 def psi(Z,beta,d,Iz_over_Kz,t_star,T_star):
@@ -130,7 +133,10 @@ def psi(Z,beta,d,Iz_over_Kz,t_star,T_star):
     
     # This is effectively the steady state water table (or initial condition)
     #
-    first_term = Z*beta-d    
+    first_term = Z*beta-d
+
+    print "R_fn is"
+    print R_fn(t_star)    
     
     if t_star < T_star:
         second_term = Z*Iz_over_Kz*R_fn(t_star)

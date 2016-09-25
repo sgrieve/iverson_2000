@@ -99,8 +99,8 @@ def R_fn(t_star):
 
     Equation 27e
     '''
-    print "Getting the erfc of"
-    print 1. / np.sqrt(t_star)     
+    #print "Getting the erfc of"
+    #print 1. / np.sqrt(t_star)     
     
     return (np.sqrt(t_star / np.pi) * np.exp(-1. / t_star) -
             math.erfc(1. / np.sqrt(t_star)))
