@@ -4,25 +4,41 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 
 
+label_size = 8
+axis_size = 12
+
+# Set up fonts for plots
 rcParams['font.family'] = 'sans-serif'
 rcParams['font.sans-serif'] = ['arial']
-rcParams['font.size'] = 18
-rcParams['xtick.direction'] = 'out'
-rcParams['ytick.direction'] = 'out'
+rcParams['font.size'] = label_size
+rcParams['xtick.major.size'] = 4    
+rcParams['ytick.major.size'] = 4
+rcParams['legend.fontsize'] = label_size
+rcParams['legend.handletextpad'] = 0.05
+rcParams['legend.labelspacing'] =0.1
+rcParams['legend.columnspacing'] =0.1 
 
 
 def days_to_secs(days):
     '''
     Convert a number of days to a number of seconds.
     '''
-    return days * 24. * 60. * 60.
+    days = np.asarray(days)
+    if days.size == 1:
+        return days * 24. * 60. * 60.
+    else:
+        return np.multiply(days,86400.)
 
 
 def weeks_to_secs(weeks):
     '''
     Convert a number of weeks to a number of seconds.
     '''
-    return days_to_secs(weeks * 7.)
+    weeks = np.asarray(weeks)
+    if weeks.size == 1:
+        return days_to_secs(weeks * 7.)
+    else:
+        return np.multiply(days_to_secs(weeks),7.)
 
 
 def array_erfc(XX):
@@ -89,6 +105,14 @@ def Beta_fn(alpha, Iz_over_Kz_steady):
     '''
     return (np.cos(alpha) ** 2.) - Iz_over_Kz_steady
 
+def Beta_line(Z,beta):
+    '''
+    Returns the "beta line", which is the maximum pore pressure
+    '''
+    beta_line = beta*Z
+    return beta_line
+        
+
 
 def t_T_star_fn(t, D_hat, Z):
     '''
@@ -138,20 +162,20 @@ def psi(Z,beta,d,Iz_over_Kz,t_star,T_star):
     # Iverson seems to just pull this out of the air. Perhaps it is based on
     # measurements?
     first_term = beta*(Z-d)
-    print "first_term is: "
-    print first_term
+    #print "first_term is: "
+    #print first_term
 
-    print "For a t_star of: "+str(t_star)+" R_fn is"
-    print R_fn(t_star)    
+    #print "For a t_star of: "+str(t_star)+" R_fn is"
+    #print R_fn(t_star)    
     
     # This solves the equation, based on the response function (R_fn), 
     # which is equation 27e
     if t_star < T_star:
         second_term = Z*Iz_over_Kz*R_fn(t_star)
-        print "Second term is: " + str(second_term)
+        #print "Second term is: " + str(second_term)
     else:
         second_term = Z*Iz_over_Kz*(R_fn(t_star)-R_fn(t_star-T_star))
-        print "Second term is (t_star > T_star): " + str(second_term)
+        #print "Second term is (t_star > T_star): " + str(second_term)
         
     psi = first_term+second_term
     
@@ -174,7 +198,7 @@ def psi_dimensional_t(Z,beta,d,Iz_over_Kz,D_hat,t,T):
         T_star = T*D_hat/(z*z)
         
         # Now calculate psi on the basis of the dimensional psi
-        this_psi = psi(Z,beta,d,Iz_over_Kz,t_star,T_star)
+        this_psi = psi(z,beta,d,Iz_over_Kz,t_star,T_star)
         psi_dimensional.append(this_psi)
 
                            
@@ -257,26 +281,40 @@ def Iverson_Fig_6():
 def Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     '''
     Reproduces Figure 7. Currently does not work.
+    Supply t as a vector in weeks and T in weeks
     '''
 
     # Get parameters for psi curves
     D_hat = D_hat_fn(Do, alpha)   
     Zs = np.linspace(0.01, 6., 10)
     beta = Beta_fn(alpha, Iz_over_Kz_steady)
+    beta_line = Beta_line(Zs,beta)
     
-    
-    beta_line = psi_dimensional_t(Zs,beta,d,Iz_over_Kz,D_hat,0,T)    
-    
-    psi = psi_dimensional_t(Zs,beta,d,Iz_over_Kz,D_hat,t,T)    
-    
-    plt.gca().invert_yaxis()
-    plt.plot(psi, Zs)
+    initial_line = psi_dimensional_t(Zs,beta,d,Iz_over_Kz,D_hat,0,T)    
+
+    # times in weeks
+    ts_in_weeks = [0,4,8,12,24]
+    ts = weeks_to_secs(ts_in_weeks)
+
+    Fig1 = plt.figure(1, facecolor='white',figsize=(3.26,3.26))  
+
+    Fig1.gca().invert_yaxis()   
     plt.plot(beta_line, Zs, 'k--', label='$\\beta$ Line')
+
+    Ts = weeks_to_secs(T)
+    
+    for t_week in t:
+        ts = weeks_to_secs(t_week)
+        this_label = 't = '+str(t_week)+' weeks'
+        psi = psi_dimensional_t(Zs,beta,d,Iz_over_Kz,D_hat,ts,Ts)    
+        plt.plot(psi, Zs, label=this_label)
+
     # plt.xlim(-2, 5)
     legend = plt.legend()
     legend.get_frame().set_linewidth(0.)
     plt.xlabel('Pressure head (m)')
     plt.ylabel('Depth (m)')
+    plt.title('T = '+str(T)+' weeks')
     plt.tight_layout()
     plt.show()
 

@@ -82,9 +82,25 @@ def compare_linear_to_loop():
     T = 10
     t_sec = IvF.weeks_to_secs(t)
     T_sec = IvF.weeks_to_secs(T)
+    Do = 0.000001
+    D_hat = IvF.D_hat_fn(Do, alpha)   
+    
+    Zs = np.linspace(0.01, 6., 10)
+    print "Z is: "
+    print Zs
+    print "Now hold on a sec whi I calculate pressure"    
+    this_psi = IvF.psi_dimensional_t(Zs,beta,d,Iz_over_Kz,D_hat,t,T)
+
+    
+    print "And now for the dimensional psi: "
+    print this_psi
+    
+    
+    # reset the t variable for the figure
+    t = [0,4,8,12,24]
  
     # calculate figure 7
-    IvF.Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
+    IvF.Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady)
  
     
 if __name__ == "__main__":
