@@ -326,6 +326,7 @@ def Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     plt.ylabel('Depth (m)')
     plt.title('T = '+str(T)+' weeks')
     plt.tight_layout()
+    plt.savefig("IversonFig7_"+str(int(T))+".svg",format = "svg")
     plt.show()
 
 
