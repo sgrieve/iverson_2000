@@ -100,8 +100,16 @@ def compare_linear_to_loop():
     t = [0,4,8,12,24]
  
     # calculate figure 7
+    print "I am making figure 7b"
     IvF.Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady)
- 
+    
+    print "Okay now I am going to do figure 7a"
+    # now do the other one
+    fig7a_ts = [0,2,6,10,20]
+    t = IvF.days_to_weeks(fig7a_ts)
+    fig_7a_T = 10
+    T = IvF.days_to_weeks(fig_7a_T)
+    IvF.Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady)
     
 if __name__ == "__main__":
     compare_linear_to_loop()  

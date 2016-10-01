@@ -40,6 +40,16 @@ def weeks_to_secs(weeks):
     else:
         return np.multiply(days_to_secs(weeks),7.)
 
+def days_to_weeks(days):
+    '''
+    Convert a number of days to a number of weeks.
+    '''
+    days = np.asarray(days)
+    if days.size == 1:
+        return days / 7.
+    else:
+        return np.divide(days,7.)
+
 
 def array_erfc(XX):
     '''
