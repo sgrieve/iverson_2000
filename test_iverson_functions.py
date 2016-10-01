@@ -44,26 +44,48 @@ def compare_linear_to_loop():
     print "R2 is"
     print R2    
   
+    # These are some characteristics of the slope
     alpha = math.radians(15.)
-    Iz_over_Kz_steady = 0.1
     
+    # Here are the rainfall intensities
+    Iz_over_Kz_steady = 0.1     # the intensity of the "steady state" pressure profile
+    Iz_over_Kz = 1              # intensity of storm event
+    
+    # set up the spatial coordinates
     Z = np.linspace(0.0, 6., 13)
     beta = IvF.Beta_fn(alpha, Iz_over_Kz_steady)   
     
+    #==========================================================
+    # test the part of the function that calculates pressure
     print "beta is: "
     print beta
     
     t_star = 0.0001
     T_star = 10
-    Iz_over_Kz = 1
+    
+    # This is the depth of the steady state water table
     d = 2
     
+    Z = 2.3    
+    
+    # Test the pressure function. This solves equations 27a and b
     this_psi = IvF.psi(Z,beta,d,Iz_over_Kz,t_star,T_star)
     print "This Z is: "
     print Z
     print "This psi is: "
     print this_psi
-  
+    #===========================================================
+ 
+    # time and peak time of rainfall duration are in weeks so we need to 
+    # convert them to seconds 
+    t= 2
+    T = 10
+    t_sec = IvF.weeks_to_secs(t)
+    T_sec = IvF.weeks_to_secs(T)
+ 
+    # calculate figure 7
+    IvF.Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
+ 
     
 if __name__ == "__main__":
     compare_linear_to_loop()  

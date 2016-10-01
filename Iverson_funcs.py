@@ -129,19 +129,23 @@ def R_fn(t_star):
 def psi(Z,beta,d,Iz_over_Kz,t_star,T_star):
     '''
     Compute psi from equation 27a and b
+    This is slightly confusing because the dimensional time is nondimensionalised
+    By depth (see equations 27c,d), so that for a single t_star or T_star value,
+    the dimensional time varies with depth
     '''
     
     # This is effectively the steady state water table (or initial condition)
-    #
+    # Iverson seems to just pull this out of the air. Perhaps it is based on
+    # measurements?
     first_term = beta*(Z-d)
     print "first_term is: "
     print first_term
 
-
-
     print "For a t_star of: "+str(t_star)+" R_fn is"
     print R_fn(t_star)    
     
+    # This solves the equation, based on the response function (R_fn), 
+    # which is equation 27e
     if t_star < T_star:
         second_term = Z*Iz_over_Kz*R_fn(t_star)
         print "Second term is: " + str(second_term)
@@ -153,9 +157,28 @@ def psi(Z,beta,d,Iz_over_Kz,t_star,T_star):
     
     return psi
             
+
+    
+def psi_dimensional_t(Z,beta,d,Iz_over_Kz,D_hat,t,T):
+    '''
+    Compute psi from equation 27a and b, but using dimensional time
+    A bit slow since I haven't vectorised the calculations. 
+    '''
+
+    psi_dimensional = []
+    for z in Z:
+        # first get the nondimensional time. Note that according to 
+        # equations 27c,d the dimensionless time is a function of depth, 
+        # so each point below the surface has a different t_star and T_star
+        t_star = t*D_hat/(z*z)
+        T_star = T*D_hat/(z*z)
         
-           
-        
+        # Now calculate psi on the basis of the dimensional psi
+        this_psi = psi(Z,beta,d,Iz_over_Kz,t_star,T_star)
+        psi_dimensional.append(this_psi)
+
+                           
+    return psi_dimensional
     
 
 
@@ -231,49 +254,21 @@ def Iverson_Fig_6():
     plt.tight_layout()
     plt.savefig('Fig_6.png')
 
-
-def Iverson_Eq_27ab(t, T, Do, alpha, Z, Iz_over_Kz=1., Iz_over_Kz_steady=0.1):
-    '''
-    Equations 27 a and b
-
-    Does not work.
-    '''
-
-    d = 2.
-
-    D_hat = D_hat_fn(Do, alpha)
-    t_star = t_T_star_fn(t, D_hat, Z)
-
-    T_star = t_T_star_fn(T, D_hat, Z)
-    beta = Beta_fn(alpha, Iz_over_Kz_steady)
-    
-    if t <= T:
-        return ((beta * (1. - (d / Z))) + (Iz_over_Kz * R_fn(t_star)))
-    else:
-        return ((beta * (1. - (d / Z))) + (Iz_over_Kz * (R_fn(t_star) -
-                R_fn(t_star - T_star))))
-
-
-def Iverson_Fig_7(t, T, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
+def Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     '''
     Reproduces Figure 7. Currently does not work.
     '''
 
+    # Get parameters for psi curves
+    D_hat = D_hat_fn(Do, alpha)   
     Zs = np.linspace(0.01, 6., 10)
     beta = Beta_fn(alpha, Iz_over_Kz_steady)
     
-    psi = []
-    beta_line = []
-
-    for Z in Zs:
-        psi_ = Iverson_Eq_27ab(t, T, Do, alpha, Z)
-        print Z, psi_ * Z
-        psi.append(psi_ * Z)
-        beta_line.append(beta * Z)
-        
-    print "beta_line is"
-    print beta_line
-
+    
+    beta_line = psi_dimensional_t(Zs,beta,d,Iz_over_Kz,D_hat,0,T)    
+    
+    psi = psi_dimensional_t(Zs,beta,d,Iz_over_Kz,D_hat,t,T)    
+    
     plt.gca().invert_yaxis()
     plt.plot(psi, Zs)
     plt.plot(beta_line, Zs, 'k--', label='$\\beta$ Line')
@@ -286,12 +281,5 @@ def Iverson_Fig_7(t, T, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     plt.show()
 
 
-# Iverson_Fig_5(0.1)
-#Iverson_Fig_7(6., 10., 0.000001, math.radians(15.), 1., 0.1)
-# Iverson_Fig_6()
 
-a = [1,2,3,4,5]
-t = np.asarray(a)
-R = R_fn(t)
-print a
 
