@@ -11,12 +11,12 @@ axis_size = 12
 rcParams['font.family'] = 'sans-serif'
 rcParams['font.sans-serif'] = ['arial']
 rcParams['font.size'] = label_size
-rcParams['xtick.major.size'] = 4    
+rcParams['xtick.major.size'] = 4
 rcParams['ytick.major.size'] = 4
 rcParams['legend.fontsize'] = label_size
 rcParams['legend.handletextpad'] = 0.05
-rcParams['legend.labelspacing'] =0.1
-rcParams['legend.columnspacing'] =0.1 
+rcParams['legend.labelspacing'] = 0.1
+rcParams['legend.columnspacing'] = 0.1
 
 
 def days_to_secs(days):
@@ -27,7 +27,7 @@ def days_to_secs(days):
     if days.size == 1:
         return days * 24. * 60. * 60.
     else:
-        return np.multiply(days,86400.)
+        return np.multiply(days, 86400.)
 
 
 def weeks_to_secs(weeks):
@@ -38,7 +38,8 @@ def weeks_to_secs(weeks):
     if weeks.size == 1:
         return days_to_secs(weeks * 7.)
     else:
-        return np.multiply(days_to_secs(weeks),7.)
+        return np.multiply(days_to_secs(weeks), 7.)
+
 
 def days_to_weeks(days):
     '''
@@ -48,7 +49,7 @@ def days_to_weeks(days):
     if days.size == 1:
         return days / 7.
     else:
-        return np.divide(days,7.)
+        return np.divide(days, 7.)
 
 
 def array_erfc(XX):
@@ -58,15 +59,15 @@ def array_erfc(XX):
 
     Not currently used, but may be useful.
     '''
-    
+
     X = np.asarray(XX)
     #print X.size
     #print "The array is:"
     #print X
-    
+
     data = []
     if X.size == 1:
-        return math.erfc(X) 
+        return math.erfc(X)
     else:
         for x in X:
             data.append(math.erfc(x))
@@ -83,9 +84,9 @@ def Z_fn(x, z, alpha):
     If Z and z share an orign, it simplifies to:
     return z / np.cos(alpha)
     '''
-    term1 = np.multiply(x,np.sin(alpha))
-    term2 = np.multiply(z,np.cos(alpha))
-    return ( np.add(term1,term2))
+    term1 = np.multiply(x, np.sin(alpha))
+    term2 = np.multiply(z, np.cos(alpha))
+    return (np.add(term1, term2))
 
 
 def D_hat_fn(Do, alpha):
@@ -96,15 +97,17 @@ def D_hat_fn(Do, alpha):
     '''
     return 4. * Do * (np.cos(alpha) ** 2.)
 
-def Iz_over_Kz_steady(alpha,Iz_over_Kz):
+
+def Iz_over_Kz_steady(alpha, Iz_over_Kz):
     '''
     Calculate the Iz_over_Kz_steady constant used in beta.
 
     Alpha is the gradient and Iz_over_Kz_steady is Steady state vertical water
     influx rate, Iverson sets this to 0.1 in Figures 7 and 8, but he also defines
     it as a function of Iz_over_Kz near the top of the first column on page 1902
-    ''' 
-    return np.cos(alpha)*Iz_over_Kz
+    '''
+    return np.cos(alpha) * Iz_over_Kz
+
 
 def Beta_fn(alpha, Iz_over_Kz_steady):
     '''
@@ -115,13 +118,13 @@ def Beta_fn(alpha, Iz_over_Kz_steady):
     '''
     return (np.cos(alpha) ** 2.) - Iz_over_Kz_steady
 
-def Beta_line(Z,beta):
+
+def Beta_line(Z, beta):
     '''
     Returns the "beta line", which is the maximum pore pressure
     '''
-    beta_line = beta*Z
+    beta_line = beta * Z
     return beta_line
-        
 
 
 def t_T_star_fn(t, D_hat, Z):
@@ -133,10 +136,10 @@ def t_T_star_fn(t, D_hat, Z):
     Both have the same form, but 27c takes t (time) whereas d takes T (rainfall
     duration).
     '''
-    Z2 = np.multiply(Z,Z)
-    denominator = np.multiply(Z2,D_hat)
-          
-    return np.divide(t,denominator)
+    Z2 = np.multiply(Z, Z)
+    denominator = np.multiply(Z2, D_hat)
+
+    return np.divide(t, denominator)
 
 
 def R_fn(t_star):
@@ -145,75 +148,73 @@ def R_fn(t_star):
 
     Equation 27e
     '''
-    
-    multiple_bit = np.multiply(np.sqrt(t_star / np.pi),np.exp(-1. / t_star)) 
+
+    multiple_bit = np.multiply(np.sqrt(t_star / np.pi), np.exp(-1. / t_star))
     one_ov_sqrt_tstar = 1. / np.sqrt(t_star)
-    
+
     #print "Numbers are (mulitply, one ov tstar): "
     #print multiple_bit
     #print one_ov_sqrt_tstar
-    
+
     #print "is this the problem??"
     #print array_erfc(one_ov_sqrt_tstar)
-    
-    #print "R_fn is"    
-    #print (np.subtract(multiple_bit,array_erfc(one_ov_sqrt_tstar)))
-    return np.subtract(multiple_bit,array_erfc(one_ov_sqrt_tstar))
 
-def psi(Z,beta,d,Iz_over_Kz,t_star,T_star):
+    #print "R_fn is"
+    #print (np.subtract(multiple_bit,array_erfc(one_ov_sqrt_tstar)))
+    return np.subtract(multiple_bit, array_erfc(one_ov_sqrt_tstar))
+
+
+def psi(Z, beta, d, Iz_over_Kz, t_star, T_star):
     '''
     Compute psi from equation 27a and b
     This is slightly confusing because the dimensional time is nondimensionalised
     By depth (see equations 27c,d), so that for a single t_star or T_star value,
     the dimensional time varies with depth
     '''
-    
+
     # This is effectively the steady state water table (or initial condition)
     # Iverson seems to just pull this out of the air. Perhaps it is based on
     # measurements?
-    first_term = beta*(Z-d)
+    first_term = beta * (Z - d)
     #print "first_term is: "
     #print first_term
 
     #print "For a t_star of: "+str(t_star)+" R_fn is"
-    #print R_fn(t_star)    
-    
-    # This solves the equation, based on the response function (R_fn), 
+    #print R_fn(t_star)
+
+    # This solves the equation, based on the response function (R_fn),
     # which is equation 27e
     if t_star < T_star:
-        second_term = Z*Iz_over_Kz*R_fn(t_star)
+        second_term = Z * Iz_over_Kz * R_fn(t_star)
         #print "Second term is: " + str(second_term)
     else:
-        second_term = Z*Iz_over_Kz*(R_fn(t_star)-R_fn(t_star-T_star))
+        second_term = Z * Iz_over_Kz * (R_fn(t_star) - R_fn(t_star - T_star))
         #print "Second term is (t_star > T_star): " + str(second_term)
-        
-    psi = first_term+second_term
-    
-    return psi
-            
 
-    
-def psi_dimensional_t(Z,beta,d,Iz_over_Kz,D_hat,t,T):
+    psi = first_term + second_term
+
+    return psi
+
+
+def psi_dimensional_t(Z, beta, d, Iz_over_Kz, D_hat, t, T):
     '''
     Compute psi from equation 27a and b, but using dimensional time
-    A bit slow since I haven't vectorised the calculations. 
+    A bit slow since I haven't vectorised the calculations.
     '''
 
     psi_dimensional = []
     for z in Z:
-        # first get the nondimensional time. Note that according to 
-        # equations 27c,d the dimensionless time is a function of depth, 
+        # first get the nondimensional time. Note that according to
+        # equations 27c,d the dimensionless time is a function of depth,
         # so each point below the surface has a different t_star and T_star
-        t_star = t*D_hat/(z*z)
-        T_star = T*D_hat/(z*z)
-        
+        t_star = t * D_hat / (z * z)
+        T_star = T * D_hat / (z * z)
+
         # Now calculate psi on the basis of the dimensional psi
-        this_psi = psi(z,beta,d,Iz_over_Kz,t_star,T_star)
+        this_psi = psi(z, beta, d, Iz_over_Kz, t_star, T_star)
         psi_dimensional.append(this_psi)
 
-                           
     return psi_dimensional
-    
 
 
 def Iverson_Fig_5(T_star):
@@ -288,6 +289,7 @@ def Iverson_Fig_6():
     plt.tight_layout()
     plt.savefig('Fig_6.png')
 
+
 def Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     '''
     Reproduces Figure 7. Currently does not work.
@@ -295,28 +297,28 @@ def Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     '''
 
     # Get parameters for psi curves
-    D_hat = D_hat_fn(Do, alpha)   
+    D_hat = D_hat_fn(Do, alpha)
     Zs = np.linspace(0.01, 6., 10)
     beta = Beta_fn(alpha, Iz_over_Kz_steady)
-    beta_line = Beta_line(Zs,beta)
-    
-    initial_line = psi_dimensional_t(Zs,beta,d,Iz_over_Kz,D_hat,0,T)    
+    beta_line = Beta_line(Zs, beta)
+
+    initial_line = psi_dimensional_t(Zs, beta, d, Iz_over_Kz, D_hat, 0, T)
 
     # times in weeks
-    ts_in_weeks = [0,4,8,12,24]
+    ts_in_weeks = [0, 4, 8, 12, 24]
     ts = weeks_to_secs(ts_in_weeks)
 
-    Fig1 = plt.figure(1, facecolor='white',figsize=(3.26,3.26))  
+    Fig1 = plt.figure(1, facecolor='white', figsize=(3.26, 3.26))
 
-    Fig1.gca().invert_yaxis()   
+    Fig1.gca().invert_yaxis()
     plt.plot(beta_line, Zs, 'k--', label='$\\beta$ Line')
 
     Ts = weeks_to_secs(T)
-    
+
     for t_week in t:
         ts = weeks_to_secs(t_week)
-        this_label = 't = '+str(t_week)+' weeks'
-        psi = psi_dimensional_t(Zs,beta,d,Iz_over_Kz,D_hat,ts,Ts)    
+        this_label = 't = ' + str(t_week) + ' weeks'
+        psi = psi_dimensional_t(Zs, beta, d, Iz_over_Kz, D_hat, ts, Ts)
         plt.plot(psi, Zs, label=this_label)
 
     # plt.xlim(-2, 5)
@@ -324,11 +326,7 @@ def Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     legend.get_frame().set_linewidth(0.)
     plt.xlabel('Pressure head (m)')
     plt.ylabel('Depth (m)')
-    plt.title('T = '+str(T)+' weeks')
+    plt.title('T = ' + str(T) + ' weeks')
     plt.tight_layout()
-    plt.savefig("IversonFig7_"+str(int(T))+".svg",format = "svg")
+    plt.savefig("IversonFig7_" + str(int(T)) + ".svg", format="svg")
     plt.show()
-
-
-
-
