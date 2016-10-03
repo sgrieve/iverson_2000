@@ -10,6 +10,7 @@ import iverson_2000 as I2000
 import numpy as np
 import math
 
+
 def compare_linear_to_loop():
 
     t_stars = np.linspace(0.1, 10000, 10)
@@ -23,7 +24,6 @@ def compare_linear_to_loop():
     for t in t_stars:
         vals.append(I2000.R_fn(t))
         vals2.append(IvF.R_fn(t))
-
 
     R = IvF.R_fn(t_stars)
 
@@ -48,14 +48,14 @@ def compare_linear_to_loop():
     alpha = math.radians(15.)
 
     # Here are the rainfall intensities
-    Iz_over_Kz_steady = 0.1     # the intensity of the "steady state" pressure profile
+    Iz_over_Kz_steady = 0.1     # intensity of "steady state" pressure profile
     Iz_over_Kz = 1              # intensity of storm event
 
     # set up the spatial coordinates
     Z = np.linspace(0.0, 6., 13)
     beta = IvF.Beta_fn(alpha, Iz_over_Kz_steady)
 
-    #==========================================================
+    # ==========================================================
     # test the part of the function that calculates pressure
     print "beta is: "
     print beta
@@ -69,16 +69,16 @@ def compare_linear_to_loop():
     Z = 2.3
 
     # Test the pressure function. This solves equations 27a and b
-    this_psi = IvF.psi(Z,beta,d,Iz_over_Kz,t_star,T_star)
+    this_psi = IvF.psi(Z, beta, d, Iz_over_Kz, t_star, T_star)
     print "This Z is: "
     print Z
     print "This psi is: "
     print this_psi
-    #===========================================================
+    # ===========================================================
 
     # time and peak time of rainfall duration are in weeks so we need to
     # convert them to seconds
-    t= 2
+    t = 2
     T = 10
     t_sec = IvF.weeks_to_secs(t)
     T_sec = IvF.weeks_to_secs(T)
@@ -89,15 +89,13 @@ def compare_linear_to_loop():
     print "Z is: "
     print Zs
     print "Now hold on a sec whi I calculate pressure"
-    this_psi = IvF.psi_dimensional_t(Zs,beta,d,Iz_over_Kz,D_hat,t,T)
-
+    this_psi = IvF.psi_dimensional_t(Zs, beta, d, Iz_over_Kz, D_hat, t, T)
 
     print "And now for the dimensional psi: "
     print this_psi
 
-
     # reset the t variable for the figure
-    t = [0,4,8,12,24]
+    t = [0, 4, 8, 12, 24]
 
     # calculate figure 7
     print "I am making figure 7b"
@@ -105,7 +103,7 @@ def compare_linear_to_loop():
 
     print "Okay now I am going to do figure 7a"
     # now do the other one
-    fig7a_ts = [0,2,6,10,20]
+    fig7a_ts = [0, 2, 6, 10, 20]
     t = IvF.days_to_weeks(fig7a_ts)
     fig_7a_T = 10
     T = IvF.days_to_weeks(fig_7a_T)
