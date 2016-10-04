@@ -88,7 +88,7 @@ def compare_linear_to_loop():
     Zs = np.linspace(0.01, 6., 10)
     print "Z is: "
     print Zs
-    print "Now hold on a sec whi I calculate pressure"
+    print "Now hold on a sec while I calculate pressure"
     this_psi = IvF.psi_dimensional_t(Zs, beta, d, Iz_over_Kz, D_hat, t, T)
 
     print "And now for the dimensional psi: "

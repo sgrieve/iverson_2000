@@ -217,6 +217,33 @@ def psi_dimensional_t(Z, beta, d, Iz_over_Kz, D_hat, t, T):
     return psi_dimensional
 
 
+def F_f(alpha, friction_angle):
+    tan_alpha = np.tan(alpha)
+    tan_friction_angle = np.tan(friction_angle)
+
+    return np.divide(tan_friction_angle, tan_alpha)
+
+
+def F_w(psi_val, weight_of_water, weight_of_soil, alpha, friction_angle, Z):
+    numerator_1 = np.multiply(psi_val, weight_of_water)
+    numerator_2 = np.multiply(numerator_1, np.tan(friction_angle))
+    numerator = np.multiply(-1., numerator_2)
+
+    denominator_1 = np.multiply(weight_of_soil, Z)
+    denominator_2 = np.multiply(np.sin(alpha), np.cos(alpha))
+    denominator = np.multiply(denominator_1, denominator_2)
+
+    return np.divide(numerator, denominator)
+
+
+def F_c(cohesion, weight_of_soil, Z, alpha):
+    denominator_1 = np.multiply(weight_of_soil, Z)
+    denominator_2 = np.multiply(np.sin(alpha), np.cos(alpha))
+    denominator = np.multiply(denominator_1, denominator_2)
+
+    return np.divide(cohesion, denominator)
+
+
 def Iverson_Fig_5(T_star):
     '''
     Reproduces Figure 5. Pass in T* values of 0.1, 1.0 and 10 to generate
@@ -308,7 +335,7 @@ def Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     ts_in_weeks = [0, 4, 8, 12, 24]
     ts = weeks_to_secs(ts_in_weeks)
 
-    Fig1 = plt.figure(1, facecolor='white', figsize=(3.26, 3.26))
+    Fig1 = plt.figure(1, facecolor='white', figsize=(10, 8))
 
     Fig1.gca().invert_yaxis()
     plt.plot(beta_line, Zs, 'k--', label='$\\beta$ Line')
@@ -328,5 +355,5 @@ def Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     plt.ylabel('Depth (m)')
     plt.title('T = ' + str(T) + ' weeks')
     plt.tight_layout()
-    plt.savefig("IversonFig7_" + str(int(T)) + ".svg", format="svg")
+    plt.savefig("IversonFig7_" + str(int(T)) + ".png", format="png")
     plt.show()
