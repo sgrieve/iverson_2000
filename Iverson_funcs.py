@@ -244,6 +244,32 @@ def F_c(cohesion, weight_of_soil, Z, alpha):
     return np.divide(cohesion, denominator)
 
 
+def FS_0(alpha, friction_angle, cohesion, Z, weight_of_water, weight_of_soil):
+    Ff = F_f(alpha, friction_angle)
+    Fc = F_c(cohesion, weight_of_soil, Z, alpha)
+
+    psi_0 = pass  # need to work out the inputs for this
+
+    numerator_1 = np.multiply(psi_0, weight_of_water)
+    numerator = np.multiply(numerator_1, np.tan(friction_angle))
+
+    denominator_1 = np.multiply(weight_of_soil, Z)
+    denominator_2 = np.multiply(np.sin(alpha), np.cos(alpha))
+    denominator = np.multiply(denominator_1, denominator_2)
+
+    third_term = np.divide(numerator, denominator)
+
+    return np.subtract(np.add(Ff, Fc), third_term)
+
+
+def FS_prime():
+    pass
+
+
+def FS():
+    pass
+
+
 def Iverson_Fig_5(T_star):
     '''
     Reproduces Figure 5. Pass in T* values of 0.1, 1.0 and 10 to generate
