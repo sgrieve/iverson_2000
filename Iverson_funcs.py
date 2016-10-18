@@ -218,6 +218,10 @@ def psi_dimensional_t(Z, beta, d, Iz_over_Kz, D_hat, t, T):
 
 
 def F_f(alpha, friction_angle):
+    '''
+    Compute F_f from equation 28
+    '''
+
     tan_alpha = np.tan(alpha)
     tan_friction_angle = np.tan(friction_angle)
 
@@ -237,18 +241,30 @@ def F_w(psi_val, weight_of_water, weight_of_soil, alpha, friction_angle, Z):
 
 
 def F_c(cohesion, weight_of_soil, Z, alpha):
+    '''
+    Compute F_c from equation 28
+    '''   
     denominator_1 = np.multiply(weight_of_soil, Z)
     denominator_2 = np.multiply(np.sin(alpha), np.cos(alpha))
     denominator = np.multiply(denominator_1, denominator_2)
+    
+    print "Denominator 1 is:"
+    print denominator_1
+    print "Denominator 2 is:"
+    print denominator_2
+    print "Entire denominator: "
+    print denominator
 
     return np.divide(cohesion, denominator)
 
 
-def FS_0(alpha, friction_angle, cohesion, Z, weight_of_water, weight_of_soil):
+def FS_0(alpha, friction_angle, cohesion, Z, weight_of_water, weight_of_soil,beta,d):
     Ff = F_f(alpha, friction_angle)
     Fc = F_c(cohesion, weight_of_soil, Z, alpha)
 
-    psi_0 = pass  # need to work out the inputs for this
+    # This is the steady state pressure. Where Iverson gets beta and d are not 
+    # entirely clear
+    psi_0 = beta * (Z - d)
 
     numerator_1 = np.multiply(psi_0, weight_of_water)
     numerator = np.multiply(numerator_1, np.tan(friction_angle))
