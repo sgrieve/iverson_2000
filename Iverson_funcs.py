@@ -156,8 +156,8 @@ def Correct_psi(Z,Psi,beta):
     Reduces Psi to the beta line, which is the theoretical maximum pore pressure
     '''   
 
-    print("Psi values are: ")
-    print(Psi)    
+    #print("Psi values are: ")
+    #print(Psi)    
     
     for i,Psi_val in enumerate(Psi):
         this_beta = Z[i]*beta
@@ -292,12 +292,12 @@ def F_c(cohesion, weight_of_soil, Z, alpha):
     denominator_2 = np.multiply(np.sin(alpha), np.cos(alpha))
     denominator = np.multiply(denominator_1, denominator_2)
     
-    print("Denominator 1 is:")
-    print(denominator_1)
-    print("Denominator 2 is:")
-    print(denominator_2)
-    print("Entire denominator: ")
-    print(denominator)
+    #print("Denominator 1 is:")
+    #print(denominator_1)
+    #print("Denominator 2 is:")
+    #print(denominator_2)
+    #print("Entire denominator: ")
+    #print(denominator)
 
     return np.divide(cohesion, denominator)
 #==============================================================================
@@ -320,6 +320,21 @@ def F_w(psi_val, weight_of_water, weight_of_soil, alpha, friction_angle, Z):
     return np.divide(numerator, denominator)
 #==============================================================================
 
+
+#==============================================================================   
+def FS(psi_val, weight_of_water, weight_of_soil, alpha, cohesion, friction_angle, Z):
+    '''
+    Compute FS from equation 28a (same as equation 29, but broken into different components)
+    The Psi value is the dimensional Psi at a dimensional time. 
+    '''
+    this_F_f = F_f(alpha, friction_angle)
+    this_F_c = F_c(cohesion, weight_of_soil, Z, alpha)
+    FS0 = np.add(this_F_f,this_F_c)
+    FSprime = F_w(psi_val, weight_of_water, weight_of_soil, alpha, friction_angle, Z)
+    
+    FS = np.add(FS0,FSprime)
+    return FS
+#============================================================================== 
 
 #==============================================================================
 def FS_0(alpha, friction_angle, cohesion, Z, weight_of_water, weight_of_soil,beta,d):
@@ -348,9 +363,6 @@ def FS_0(alpha, friction_angle, cohesion, Z, weight_of_water, weight_of_soil,bet
 def FS_prime():
     pass
 
-
-def FS():
-    pass
 
 
 

@@ -27,8 +27,9 @@ def test_FoS():
     #Z = 0.01
     beta = IvF.Beta_fn(alpha, Iz_over_Kz_steady)
     
-    # set up the weight of soil (this is density times gravity in SI units, see Iverson table 2)
+    # set up the weight of soil and water (this is density times gravity in SI units, see Iverson table 2)
     weight_of_soil = 22000
+    weight_of_water = 9800
     
     # Cohesion in Pa
     cohesion = 4000
@@ -44,7 +45,7 @@ def test_FoS():
 
 
     # Now calculate the Factor of safety from water
-    t = 12
+    t = 24
     T = 12
     d = 2
     t_sec = IvF.weeks_to_secs(t)
@@ -52,7 +53,7 @@ def test_FoS():
     Do = 0.000001
     D_hat = IvF.D_hat_fn(Do, alpha)
 
-
+    # First calculate Psi
     print("Z is: ")
     print(Zs)
     print("Now hold on a sec while I calculate pressure")
@@ -60,10 +61,22 @@ def test_FoS():
     
     print("The psi values are: ")
     print(this_psi)
-    
+
+    # Correct Pis: it is limited by the beta curve (which is just the saturated pore pressure)    
     corr_psi = IvF.Correct_psi(Zs,this_psi,beta)
     print("The corrected psi values are:")
     print(corr_psi)
+    
+    # Now get the FoS contribution from the pore pressure
+    F_w = IvF.F_w(corr_psi, weight_of_water, weight_of_soil, alpha, friction_angle, Zs)
+    print("F_w is: ")
+    print(F_w) 
+    
+    # Now get the Factor of safety
+    FS = IvF.FS(corr_psi, weight_of_water, weight_of_soil, alpha, cohesion, friction_angle, Zs)
+    print("FS is:")
+    print(FS)
+    
 
 
 
