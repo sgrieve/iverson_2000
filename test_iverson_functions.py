@@ -77,13 +77,36 @@ def test_FoS():
     print("FS is:")
     print(FS)
     
+    # Now for the plots
+    t_weeks = [0, 4, 8, 12, 24]
+    t_sec = IvF.weeks_to_secs(t_weeks)
+    name_string = "Figure10.png"
 
-
-
+    IvF.Iverson_FoS_Fig10(weight_of_water, weight_of_soil, alpha, cohesion, friction_angle, d, Iz_over_Kz, Iz_over_Kz_steady, Do, t_sec, T_sec,name_string)
+    
+    
+    # lets do figure 11
+    weight_of_water = 9800
+    weight_of_soil = 19000
+    alpha = math.radians(31)
+    cohesion = 500
+    friction_angle = math.radians(38)
+    d = 0.7
+    Iz_over_Kz  = 1
+    Iz_over_Kz_steady = 0
+    Do = 0.001
+    
+    T_minutes = 10
+    T_sec = IvF.minutes_to_secs(T_minutes)         
+    t_minutes = [0,2,6,10,20]       
+    t_sec = IvF.minutes_to_secs(t_minutes) 
+    name_string = "Figure11.png"
+    
+    IvF.Iverson_FoS_Fig11(weight_of_water, weight_of_soil, alpha, cohesion, friction_angle, d, Iz_over_Kz, Iz_over_Kz_steady, Do, t_sec, T_sec,name_string)
 
 def compare_linear_to_loop():
 
-    t_stars = np.linspace(0.1, 10000, 10)
+    t_stars = np.linspace(0.2, 10000, 15)
 
     print("t_stars are:")
     print(t_stars)

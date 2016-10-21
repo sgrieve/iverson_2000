@@ -3,6 +3,7 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
+import matplotlib.patches as patches
 
 
 label_size = 8
@@ -18,6 +19,20 @@ rcParams['legend.fontsize'] = label_size
 rcParams['legend.handletextpad'] = 0.05
 rcParams['legend.labelspacing'] = 0.1
 rcParams['legend.columnspacing'] = 0.1
+
+
+#==============================================================================
+def minutes_to_secs(minutes):
+    '''
+    Convert a number of days to a number of seconds.
+    '''
+    minutes = np.asarray(minutes)
+    if minutes.size == 1:
+        return minutes * 60.
+    else:
+        return np.multiply(minutes, 60.)
+#==============================================================================
+
 
 
 #==============================================================================
@@ -244,13 +259,34 @@ def psi(Z, beta, d, Iz_over_Kz, t_star, T_star):
     return psi
 #==============================================================================
     
-    
-    
+#==============================================================================
+def psi_transient(Z, beta, d, Iz_over_Kz, t_star, T_star):
+    '''
+    Compute psi from equation 27a and b
+    This one only has the transient component
+    '''
+
+    # This solves the equation, based on the response function (R_fn),
+    # which is equation 27e
+    if t_star < T_star:
+        second_term = Z * Iz_over_Kz * R_fn(t_star)
+        #print "Second term is: " + str(second_term)
+    else:
+        second_term = Z * Iz_over_Kz * (R_fn(t_star) - R_fn(t_star - T_star))
+        #print "Second term is (t_star > T_star): " + str(second_term)
+
+    psi = second_term
+
+    return psi
+#============================================================================== 
+
+       
 #==============================================================================
 def psi_dimensional_t(Z, beta, d, Iz_over_Kz, D_hat, t, T):
     '''
     Compute psi from equation 27a and b, but using dimensional time
     A bit slow since I haven't vectorised the calculations.
+    Times need to be in seconds
     '''
 
     psi_dimensional = []
@@ -268,6 +304,32 @@ def psi_dimensional_t(Z, beta, d, Iz_over_Kz, D_hat, t, T):
     return psi_dimensional
 #==============================================================================
     
+
+#==============================================================================
+def psi_dimensional_t_transient(Z, beta, d, Iz_over_Kz, D_hat, t, T):
+    '''
+    Compute psi from equation 27a and b, but using dimensional time
+    A bit slow since I haven't vectorised the calculations.
+    Only calculates the transient component of psi for use with 
+    time series of rainfall
+    times need to be in seconds
+    '''
+
+    psi_dimensional = []
+    for z in Z:
+        # first get the nondimensional time. Note that according to
+        # equations 27c,d the dimensionless time is a function of depth,
+        # so each point below the surface has a different t_star and T_star
+        t_star = t * D_hat / (z * z)
+        T_star = T * D_hat / (z * z)
+
+        # Now calculate psi on the basis of the dimensional psi
+        this_psi = psi_transient(z, beta, d, Iz_over_Kz, t_star, T_star)
+        psi_dimensional.append(this_psi)
+
+    return psi_dimensional
+#==============================================================================
+
     
     
 #==============================================================================
@@ -335,36 +397,33 @@ def FS(psi_val, weight_of_water, weight_of_soil, alpha, cohesion, friction_angle
     FS = np.add(FS0,FSprime)
     return FS
 #============================================================================== 
-
-#==============================================================================
-def FS_0(alpha, friction_angle, cohesion, Z, weight_of_water, weight_of_soil,beta,d):
-    Ff = F_f(alpha, friction_angle)
-    Fc = F_c(cohesion, weight_of_soil, Z, alpha)
-
-    # This is the steady state pressure. Where Iverson gets beta and d are not 
-    # entirely clear
-    psi_0 = beta * (Z - d)
-
-    numerator_1 = np.multiply(psi_0, weight_of_water)
-    numerator = np.multiply(numerator_1, np.tan(friction_angle))
-
-    denominator_1 = np.multiply(weight_of_soil, Z)
-    denominator_2 = np.multiply(np.sin(alpha), np.cos(alpha))
-    denominator = np.multiply(denominator_1, denominator_2)
-
-    third_term = np.divide(numerator, denominator)
-
-    return np.subtract(np.add(Ff, Fc), third_term)
-#==============================================================================
     
     
+#============================================================================== 
+def FS_fxn_t_T_Z(Zs, t_sec, T_sec, weight_of_water, weight_of_soil, alpha, cohesion, friction_angle, beta, d, Iz_over_Kz, D_0):
+    '''
+    Compute FS from equation 28a (same as equation 29, but broken into different components)
+    The Psi value is the dimensional Psi at a dimensional time. 
+    '''   
+    # Get the normalised diffusivity
+    D_hat = D_hat_fn(D_0, alpha)    
     
+    # get pressure
+    this_psi = psi_dimensional_t(Zs, beta, d, Iz_over_Kz, D_hat, t_sec, T_sec)
 
-def FS_prime():
-    pass
-
-
-
+    # Correct Pis: it is limited by the beta curve (which is just the saturated pore pressure)    
+    # NOTE IVERSON DOESN'T USE THIS IN HIS FIGURES EVEN THOUGH HE SAYS YOU SHOULD    
+    corr_psi = Correct_psi(Zs,this_psi,beta)
+    
+    # This is what iverson does to generate figres 10 and 11
+    #corr_psi = this_psi
+    
+    # Now get the Factor of safety
+    this_FS = FS(corr_psi, weight_of_water, weight_of_soil, alpha, cohesion, friction_angle, Zs)
+    
+    return this_FS
+#============================================================================== 
+    
 
 #==============================================================================
 def Iverson_Fig_5(T_star):
@@ -487,3 +546,93 @@ def Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     plt.savefig("IversonFig7_" + str(int(T)) + ".png", format="png")
     plt.show()
 #==============================================================================
+    
+    
+#==============================================================================
+def Iverson_FoS_Fig10(weight_of_water, weight_of_soil, alpha, cohesion, friction_angle, d, Iz_over_Kz, Iz_over_Kz_steady, D_0, t_sec, T_sec,name_string):
+    
+    # Get parameters for psi curves
+    Zs = np.linspace(0.001, 6., 200)
+    beta = Beta_fn(alpha, Iz_over_Kz_steady)
+
+    Fig1 = plt.figure(1, facecolor='white', figsize=(10, 8))
+
+    Fig1.gca().invert_yaxis()
+   
+
+    for this_time in t_sec:
+        
+        this_FS = FS_fxn_t_T_Z(Zs, this_time, T_sec, weight_of_water, weight_of_soil, alpha, cohesion, friction_angle, beta, d, Iz_over_Kz, D_0)
+        
+        this_label = 't = ' + str(this_time) + ' seconds'        
+        plt.plot(this_FS, Zs, label=this_label,linewidth=3)
+    
+    ax1 = plt.gca()    
+    ax1.add_patch(patches.Rectangle(
+        (0.9, 0),   # (x,y)
+        0.1,          # width
+        6,          # height
+        alpha=0.2,
+        facecolor="red",
+        linewidth=2,
+    ))
+    plt.text(0.92, 2, 'Unstable', rotation=90, fontsize=24)
+    
+    #ax = plt.gca()
+    plt.xlim(0.9, 1.4)
+    
+    legend = plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=2.,fontsize = 20)        
+    legend.get_frame().set_linewidth(1.)
+    plt.xlabel('Factor of Safety (dimensionless)')
+    plt.ylabel('Depth (m)')
+    #plt.title('T = ' + str(T) + ' weeks')
+    plt.tight_layout()    
+    plt.savefig(name_string, format="png")
+    plt.show()       
+#==============================================================================    
+ 
+#==============================================================================
+def Iverson_FoS_Fig11(weight_of_water, weight_of_soil, alpha, cohesion, friction_angle, d, Iz_over_Kz, Iz_over_Kz_steady, D_0, t_sec, T_sec,name_string):
+    
+    # Get parameters for psi curves
+    Zs = np.linspace(0.001, 0.7, 200)
+    beta = Beta_fn(alpha, Iz_over_Kz_steady)
+
+    Fig1 = plt.figure(1, facecolor='white', figsize=(10, 8))
+
+    Fig1.gca().invert_yaxis()
+   
+
+    for this_time in t_sec:
+        
+        this_FS = FS_fxn_t_T_Z(Zs, this_time, T_sec, weight_of_water, weight_of_soil, alpha, cohesion, friction_angle, beta, d, Iz_over_Kz, D_0)
+        
+        this_label = 't = ' + str(this_time) + ' seconds'        
+        plt.plot(this_FS, Zs, label=this_label,linewidth=3)
+    
+    ax1 = plt.gca()    
+    ax1.add_patch(patches.Rectangle(
+        (0.5, 0),   # (x,y)
+        0.5,          # width
+        0.7,          # height
+        alpha=0.2,
+        facecolor="red",
+        linewidth=2,
+    ))
+    plt.text(0.92, 2, 'Unstable', rotation=90, fontsize=24)
+    
+    #ax = plt.gca()
+    plt.xlim(0.5, 2.0)
+    
+    legend = plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
+           ncol=2, mode="expand", borderaxespad=2.,fontsize = 20)        
+    legend.get_frame().set_linewidth(1.)
+    plt.xlabel('Factor of Safety (dimensionless)')
+    plt.ylabel('Depth (m)')
+    #plt.title('T = ' + str(T) + ' weeks')
+    plt.tight_layout()    
+    plt.savefig(name_string, format="png")
+    plt.show()       
+#==============================================================================    
+   
