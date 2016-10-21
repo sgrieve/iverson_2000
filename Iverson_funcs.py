@@ -1,3 +1,4 @@
+from __future__ import print_function
 import math
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,6 +20,7 @@ rcParams['legend.labelspacing'] = 0.1
 rcParams['legend.columnspacing'] = 0.1
 
 
+#==============================================================================
 def days_to_secs(days):
     '''
     Convert a number of days to a number of seconds.
@@ -28,8 +30,10 @@ def days_to_secs(days):
         return days * 24. * 60. * 60.
     else:
         return np.multiply(days, 86400.)
-
-
+#==============================================================================
+        
+        
+#==============================================================================
 def weeks_to_secs(weeks):
     '''
     Convert a number of weeks to a number of seconds.
@@ -39,8 +43,10 @@ def weeks_to_secs(weeks):
         return days_to_secs(weeks * 7.)
     else:
         return np.multiply(days_to_secs(weeks), 7.)
-
-
+#==============================================================================
+        
+        
+#==============================================================================        
 def days_to_weeks(days):
     '''
     Convert a number of days to a number of weeks.
@@ -50,8 +56,11 @@ def days_to_weeks(days):
         return days / 7.
     else:
         return np.divide(days, 7.)
-
-
+#==============================================================================
+        
+        
+        
+#==============================================================================
 def array_erfc(XX):
     '''
     Apply the math.erfc() function to an array or list of values, returning a
@@ -72,8 +81,11 @@ def array_erfc(XX):
         for x in X:
             data.append(math.erfc(x))
             return np.array(data)
-
-
+#==============================================================================
+            
+            
+            
+#==============================================================================
 def Z_fn(x, z, alpha):
     '''
     Calculate Z, the elevation head, from the equations given in Figure 3's
@@ -87,8 +99,11 @@ def Z_fn(x, z, alpha):
     term1 = np.multiply(x, np.sin(alpha))
     term2 = np.multiply(z, np.cos(alpha))
     return (np.add(term1, term2))
-
-
+#==============================================================================
+    
+    
+    
+#==============================================================================
 def D_hat_fn(Do, alpha):
     '''
     Equation 26c - compute an effective hydraulic diffusivity.
@@ -96,8 +111,11 @@ def D_hat_fn(Do, alpha):
     Do is a reference diffusivity and alpha is the slope gradient.
     '''
     return 4. * Do * (np.cos(alpha) ** 2.)
-
-
+#==============================================================================
+    
+    
+    
+#==============================================================================
 def Iz_over_Kz_steady(alpha, Iz_over_Kz):
     '''
     Calculate the Iz_over_Kz_steady constant used in beta.
@@ -107,8 +125,11 @@ def Iz_over_Kz_steady(alpha, Iz_over_Kz):
     it as a function of Iz_over_Kz near the top of the first column on page 1902
     '''
     return np.cos(alpha) * Iz_over_Kz
-
-
+#==============================================================================
+    
+    
+    
+#==============================================================================
 def Beta_fn(alpha, Iz_over_Kz_steady):
     '''
     Calculate the beta constant used in equation 27a and b.
@@ -117,16 +138,22 @@ def Beta_fn(alpha, Iz_over_Kz_steady):
     influx rate, Iverson sets this to 0.1 in Figures 7 and 8.
     '''
     return (np.cos(alpha) ** 2.) - Iz_over_Kz_steady
-
-
+#==============================================================================
+    
+    
+    
+#==============================================================================
 def Beta_line(Z, beta):
     '''
     Returns the "beta line", which is the maximum pore pressure
     '''
     beta_line = beta * Z
     return beta_line
-
-
+#==============================================================================
+    
+    
+    
+#==============================================================================
 def t_T_star_fn(t, D_hat, Z):
     '''
     Equation 27c and 27d to nondimensionalise the time parameters.
@@ -140,8 +167,11 @@ def t_T_star_fn(t, D_hat, Z):
     denominator = np.multiply(Z2, D_hat)
 
     return np.divide(t, denominator)
-
-
+#==============================================================================
+    
+    
+    
+#==============================================================================
 def R_fn(t_star):
     '''
     Compute the response function for a t* value.
@@ -162,8 +192,11 @@ def R_fn(t_star):
     #print "R_fn is"
     #print (np.subtract(multiple_bit,array_erfc(one_ov_sqrt_tstar)))
     return np.subtract(multiple_bit, array_erfc(one_ov_sqrt_tstar))
-
-
+#==============================================================================
+    
+    
+    
+#==============================================================================
 def psi(Z, beta, d, Iz_over_Kz, t_star, T_star):
     '''
     Compute psi from equation 27a and b
@@ -194,8 +227,11 @@ def psi(Z, beta, d, Iz_over_Kz, t_star, T_star):
     psi = first_term + second_term
 
     return psi
-
-
+#==============================================================================
+    
+    
+    
+#==============================================================================
 def psi_dimensional_t(Z, beta, d, Iz_over_Kz, D_hat, t, T):
     '''
     Compute psi from equation 27a and b, but using dimensional time
@@ -215,8 +251,11 @@ def psi_dimensional_t(Z, beta, d, Iz_over_Kz, D_hat, t, T):
         psi_dimensional.append(this_psi)
 
     return psi_dimensional
-
-
+#==============================================================================
+    
+    
+    
+#==============================================================================
 def F_f(alpha, friction_angle):
     '''
     Compute F_f from equation 28
@@ -226,8 +265,30 @@ def F_f(alpha, friction_angle):
     tan_friction_angle = np.tan(friction_angle)
 
     return np.divide(tan_friction_angle, tan_alpha)
+#==============================================================================
+    
+    
+#==============================================================================    
+def F_c(cohesion, weight_of_soil, Z, alpha):
+    '''
+    Compute F_c from equation 28
+    '''   
+    denominator_1 = np.multiply(weight_of_soil, Z)
+    denominator_2 = np.multiply(np.sin(alpha), np.cos(alpha))
+    denominator = np.multiply(denominator_1, denominator_2)
+    
+    print("Denominator 1 is:")
+    print(denominator_1)
+    print("Denominator 2 is:")
+    print(denominator_2)
+    print("Entire denominator: ")
+    print(denominator)
 
-
+    return np.divide(cohesion, denominator)
+#==============================================================================
+    
+    
+#==============================================================================
 def F_w(psi_val, weight_of_water, weight_of_soil, alpha, friction_angle, Z):
     numerator_1 = np.multiply(psi_val, weight_of_water)
     numerator_2 = np.multiply(numerator_1, np.tan(friction_angle))
@@ -238,26 +299,10 @@ def F_w(psi_val, weight_of_water, weight_of_soil, alpha, friction_angle, Z):
     denominator = np.multiply(denominator_1, denominator_2)
 
     return np.divide(numerator, denominator)
+#==============================================================================
 
 
-def F_c(cohesion, weight_of_soil, Z, alpha):
-    '''
-    Compute F_c from equation 28
-    '''   
-    denominator_1 = np.multiply(weight_of_soil, Z)
-    denominator_2 = np.multiply(np.sin(alpha), np.cos(alpha))
-    denominator = np.multiply(denominator_1, denominator_2)
-    
-    print "Denominator 1 is:"
-    print denominator_1
-    print "Denominator 2 is:"
-    print denominator_2
-    print "Entire denominator: "
-    print denominator
-
-    return np.divide(cohesion, denominator)
-
-
+#==============================================================================
 def FS_0(alpha, friction_angle, cohesion, Z, weight_of_water, weight_of_soil,beta,d):
     Ff = F_f(alpha, friction_angle)
     Fc = F_c(cohesion, weight_of_soil, Z, alpha)
@@ -276,7 +321,10 @@ def FS_0(alpha, friction_angle, cohesion, Z, weight_of_water, weight_of_soil,bet
     third_term = np.divide(numerator, denominator)
 
     return np.subtract(np.add(Ff, Fc), third_term)
-
+#==============================================================================
+    
+    
+    
 
 def FS_prime():
     pass
@@ -286,6 +334,8 @@ def FS():
     pass
 
 
+
+#==============================================================================
 def Iverson_Fig_5(T_star):
     '''
     Reproduces Figure 5. Pass in T* values of 0.1, 1.0 and 10 to generate
@@ -315,8 +365,11 @@ def Iverson_Fig_5(T_star):
     legend.get_frame().set_linewidth(0.)
     plt.tight_layout()
     plt.savefig('Fig_5.png')
-
-
+#==============================================================================
+    
+    
+    
+#==============================================================================
 def Iverson_Fig_6():
     '''
     Reproduces Figure 6.
@@ -357,8 +410,11 @@ def Iverson_Fig_6():
     legend.get_frame().set_linewidth(0.)
     plt.tight_layout()
     plt.savefig('Fig_6.png')
-
-
+#==============================================================================
+    
+    
+    
+#==============================================================================
 def Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     '''
     Reproduces Figure 7. Currently does not work.
@@ -399,3 +455,4 @@ def Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady):
     plt.tight_layout()
     plt.savefig("IversonFig7_" + str(int(T)) + ".png", format="png")
     plt.show()
+#==============================================================================
