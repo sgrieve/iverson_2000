@@ -151,6 +151,21 @@ def Beta_line(Z, beta):
     return beta_line
 #==============================================================================
     
+def Correct_psi(Z,Psi,beta):
+    '''
+    Reduces Psi to the beta line, which is the theoretical maximum pore pressure
+    '''   
+
+    print("Psi values are: ")
+    print(Psi)    
+    
+    for i,Psi_val in enumerate(Psi):
+        this_beta = Z[i]*beta
+        if Psi_val > this_beta:
+            Psi[i] = this_beta
+            
+    return Psi
+    
     
     
 #==============================================================================
@@ -290,6 +305,10 @@ def F_c(cohesion, weight_of_soil, Z, alpha):
     
 #==============================================================================
 def F_w(psi_val, weight_of_water, weight_of_soil, alpha, friction_angle, Z):
+    '''
+    Compute F_w from equation 28
+    The Psi value is the dimensional Psi at a dimensional time. 
+    '''  
     numerator_1 = np.multiply(psi_val, weight_of_water)
     numerator_2 = np.multiply(numerator_1, np.tan(friction_angle))
     numerator = np.multiply(-1., numerator_2)

@@ -14,13 +14,58 @@ import math
 
 def test_FoS():
 
-    # These are some characteristics of the slope
+    # These are some characteristics of the slope. they come from the Minor Creek Landslide
     alpha = math.radians(15.)
-    friction_angle = math.radians(35)
+    friction_angle = math.radians(18)
+
+    # Here are the rainfall intensities
+    Iz_over_Kz_steady = 0.1     # intensity of "steady state" pressure profile
+    Iz_over_Kz = 1              # intensity of storm event
+
+    # set up the spatial coordinates
+    Zs = np.linspace(0.01, 6., 10)
+    #Z = 0.01
+    beta = IvF.Beta_fn(alpha, Iz_over_Kz_steady)
     
+    # set up the weight of soil (this is density times gravity in SI units, see Iverson table 2)
+    weight_of_soil = 22000
+    
+    # Cohesion in Pa
+    cohesion = 4000
+    
+    # calculate the Factor of safety contribution from friction
     F_f = IvF.F_f(alpha, friction_angle)
     print("F_f is: " + str(F_f))
     
+    # Calculate the factor of safety contribution from cohesion
+    F_c = IvF.F_c(cohesion, weight_of_soil, Zs, alpha)
+    print("F_c is: ")
+    print(F_c) 
+
+
+    # Now calculate the Factor of safety from water
+    t = 12
+    T = 12
+    d = 2
+    t_sec = IvF.weeks_to_secs(t)
+    T_sec = IvF.weeks_to_secs(T)
+    Do = 0.000001
+    D_hat = IvF.D_hat_fn(Do, alpha)
+
+
+    print("Z is: ")
+    print(Zs)
+    print("Now hold on a sec while I calculate pressure")
+    this_psi = IvF.psi_dimensional_t(Zs, beta, d, Iz_over_Kz, D_hat, t_sec, T_sec)
+    
+    print("The psi values are: ")
+    print(this_psi)
+    
+    corr_psi = IvF.Correct_psi(Zs,this_psi,beta)
+    print("The corrected psi values are:")
+    print(corr_psi)
+
+
 
 
 def compare_linear_to_loop():
