@@ -330,6 +330,53 @@ def psi_dimensional_t_transient(Z, beta, d, Iz_over_Kz, D_hat, t, T):
     return psi_dimensional
 #==============================================================================
 
+#==============================================================================
+# This loads a time series that has rain two columns, a rainfall duration
+# and a rainfall rate. 
+# It then superposes these to get the Psi value at a given time
+#==============================================================================
+def psi_dimensional_from_time_series(durations,intensities,Z, beta, d, Iz_over_Kz, D_hat, t):
+    
+    # loop through the record getting cumulative times
+    starting_times = []
+    starting_times.append(0)
+    cumulative_time = 0
+    count = 0
+    end_count_found = False
+    end_count = 0
+    for this_duration in durations:
+        cumulative_time = cumulative_time+this_duration
+        
+        # the cumulative time is the time at the end of this timestep. 
+        # if the cumulative time  is less than the time of simulation, 
+        # then we need to acount for this pulse of rainfall        
+        if t < cumulative_time:
+            if end_count_found == False:
+                end_count_found = True
+                end_count = count
+        
+        count = count+1
+        starting_times.append(cumulative_time)
+    
+    # we don't need the last element
+    del starting_times[-1]
+    
+    # If we didn't find the end count it means the rainfall records have ended and we need
+    # all of the data        
+    if end_count_found == False:
+        end_count = count-1     # The minus one is needed since we have counted past the end of the index
+        
+
+    
+    
+    
+    # okay, now get the transients from superposition 
+    # First we need to figure out how many of these    
+    
+
+
+
+
     
     
 #==============================================================================
@@ -423,7 +470,12 @@ def FS_fxn_t_T_Z(Zs, t_sec, T_sec, weight_of_water, weight_of_soil, alpha, cohes
     
     return this_FS
 #============================================================================== 
-    
+
+
+
+
+
+   
 
 #==============================================================================
 def Iverson_Fig_5(T_star):
@@ -457,6 +509,9 @@ def Iverson_Fig_5(T_star):
     plt.savefig('Fig_5.png')
 #==============================================================================
     
+
+
+
     
     
 #==============================================================================
