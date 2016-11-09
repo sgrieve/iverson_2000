@@ -341,6 +341,8 @@ def psi_dimensional_from_time_series(durations,intensities,Z, beta, d, D_hat, t)
     # on top of this. Not clear where Iverson comes up with these numbers. 
     steady_psi = beta * (Z - d)
     cumulative_psi = np.asarray(steady_psi)
+    print("steady psi is: ")
+    print(steady_psi)
         
     
     # Now we try to construct the transient pressure. 
@@ -376,27 +378,29 @@ def psi_dimensional_from_time_series(durations,intensities,Z, beta, d, D_hat, t)
 
     # okay, now get the transients from superposition 
     # First we need to figure out how many of these we will need
-    print("end count is: " + str(end_count))
+    #print("end count is: " + str(end_count))
     
     for i,time in enumerate(starting_times):
-        print("time is: "+str(time))
+        #print("time is: "+str(time))
+        if i <= end_count:
+            eff_t = t-time
+            this_intensity = intensities[i]
+            this_duration = durations[i]
         
-        eff_t = t-time
-        this_intensity = intensities[i]
-        this_duration = durations[i]
+            #print("Eff T: "+str(eff_t)+" and intensity is: "+str(this_intensity)+" and duration is: " +str(this_duration))
         
-        print("Eff T: "+str(eff_t)+" and intensity is: "+str(this_intensity)+" and duration is: " +str(this_duration))
+            # now get the psi values.
+            this_psi = psi_dimensional_t_transient(Z, beta, d, this_intensity, D_hat, eff_t, this_duration)
         
-        # now get the psi values.
-        this_psi = psi_dimensional_t_transient(Z, beta, d, this_intensity, D_hat, eff_t, this_duration)
+            cumulative_psi = np.add(cumulative_psi,this_psi)
         
-        cumulative_psi = np.add(cumulative_psi,this_psi)
+            #print("this psi is:")
+            #print(this_psi)
         
-        print("this psi is:")
-        print(this_psi)
-        
-        print ("cumulative psi is: ")
-        print(cumulative_psi)
+            #print ("cumulative psi is: ")
+            #print(cumulative_psi)
+    
+    return cumulative_psi
 
 
 

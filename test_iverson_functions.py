@@ -10,7 +10,24 @@ import Iverson_funcs as IvF
 import iverson_2000 as I2000
 import numpy as np
 import math
+import matplotlib.pyplot as plt
+from matplotlib import rcParams
+import matplotlib.patches as patches
 
+
+label_size = 8
+axis_size = 12
+
+# Set up fonts for plots
+rcParams['font.family'] = 'sans-serif'
+rcParams['font.sans-serif'] = ['arial']
+rcParams['font.size'] = label_size
+rcParams['xtick.major.size'] = 4
+rcParams['ytick.major.size'] = 4
+rcParams['legend.fontsize'] = label_size
+rcParams['legend.handletextpad'] = 0.05
+rcParams['legend.labelspacing'] = 0.1
+rcParams['legend.columnspacing'] = 0.1
 
 def test_FoS():
 
@@ -211,8 +228,8 @@ def test_time_series():
 
     # Here are the rainfall intensities
     Iz_over_Kz_steady = 0.1     # intensity of "steady state" pressure profile
-    Intensities = [0.5,1]              # intensity of storm events
-    Durations = [5,6]               # durations of the events
+    Intensities = [0.5,1,0.5]              # intensity of storm events
+    Durations = [5,6,4]               # durations of the events
 
     # set up the spatial coordinates
     Zs = np.linspace(0.01, 6., 10)
@@ -221,14 +238,33 @@ def test_time_series():
     
 
     # Now calculate the Factor of safety from water
-    t = 24
+    t = [1,4,8,12,16,20,25]
     d = 2
-    t_sec = IvF.weeks_to_secs(t)
+    #t_sec = IvF.weeks_to_secs(t)
     durations_sec = IvF.weeks_to_secs(Durations)
     Do = 0.000001
     D_hat = IvF.D_hat_fn(Do, alpha)
-    
-    IvF.psi_dimensional_from_time_series(durations_sec,Intensities,Zs, beta, d, D_hat, t_sec)
+
+    Fig1 = plt.figure(1, facecolor='white', figsize=(10, 8))
+
+    Fig1.gca().invert_yaxis()
+
+    for t_week in t:
+        ts = IvF.weeks_to_secs(t_week)
+        this_label = 't = ' + str(t_week) + ' weeks'
+        psi = IvF.psi_dimensional_from_time_series(durations_sec,Intensities,Zs, beta, d, D_hat, ts)
+        plt.plot(psi, Zs, label=this_label)
+
+    # plt.xlim(-2, 5)
+    legend = plt.legend()
+    legend.get_frame().set_linewidth(0.)
+    plt.xlabel('Pressure head (m)')
+    plt.ylabel('Depth (m)')
+    plt.title('Transient')
+    plt.tight_layout()
+    plt.savefig("Test_transient.png", format="png")
+    plt.show()
+
 
 if __name__ == "__main__":
     #compare_linear_to_loop()
