@@ -238,7 +238,7 @@ def test_time_series():
     
 
     # Now calculate the Factor of safety from water
-    t = [1,4,8,12,16,20,25]
+    t = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
     d = 2
     #t_sec = IvF.weeks_to_secs(t)
     durations_sec = IvF.weeks_to_secs(Durations)
@@ -248,22 +248,28 @@ def test_time_series():
     Fig1 = plt.figure(1, facecolor='white', figsize=(10, 8))
 
     Fig1.gca().invert_yaxis()
-
+    count = 0
     for t_week in t:
         ts = IvF.weeks_to_secs(t_week)
         this_label = 't = ' + str(t_week) + ' weeks'
         psi = IvF.psi_dimensional_from_time_series(durations_sec,Intensities,Zs, beta, d, D_hat, ts)
         plt.plot(psi, Zs, label=this_label)
+        count = count+1
+        legend = plt.legend()
+        legend.get_frame().set_linewidth(0.)
+        plt.xlabel('Pressure head (m)')
+        plt.ylabel('Depth (m)')
+        plt.title('Transient')
+        plt.xlim(-2, 5)
+        plt.tight_layout()
 
-    # plt.xlim(-2, 5)
-    legend = plt.legend()
-    legend.get_frame().set_linewidth(0.)
-    plt.xlabel('Pressure head (m)')
-    plt.ylabel('Depth (m)')
-    plt.title('Transient')
-    plt.tight_layout()
-    plt.savefig("Test_transient.png", format="png")
-    plt.show()
+        plt.savefig("Test_transient"+str(100+count)+".png", format="png")
+
+        plt.cla()
+
+    # 
+
+    #plt.show()
 
 
 if __name__ == "__main__":
