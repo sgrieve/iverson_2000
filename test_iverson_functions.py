@@ -202,6 +202,35 @@ def compare_linear_to_loop():
     T = IvF.days_to_weeks(fig_7a_T)
     IvF.Iverson_Fig_7(t, T, d, Do, alpha, Iz_over_Kz, Iz_over_Kz_steady)
 
+
+def test_time_series():
+
+    # These are some characteristics of the slope. they come from the Minor Creek Landslide
+    alpha = math.radians(15.)
+    friction_angle = math.radians(18)
+
+    # Here are the rainfall intensities
+    Iz_over_Kz_steady = 0.1     # intensity of "steady state" pressure profile
+    Intensities = [0.5,1]              # intensity of storm events
+    Durations = [5,6]               # durations of the events
+
+    # set up the spatial coordinates
+    Zs = np.linspace(0.01, 6., 10)
+    #Z = 0.01
+    beta = IvF.Beta_fn(alpha, Iz_over_Kz_steady)
+    
+
+    # Now calculate the Factor of safety from water
+    t = 24
+    d = 2
+    t_sec = IvF.weeks_to_secs(t)
+    durations_sec = IvF.weeks_to_secs(Durations)
+    Do = 0.000001
+    D_hat = IvF.D_hat_fn(Do, alpha)
+    
+    IvF.psi_dimensional_from_time_series(durations_sec,Intensities,Zs, beta, d, D_hat, t_sec)
+
 if __name__ == "__main__":
     #compare_linear_to_loop()
-    test_FoS()
+    #test_FoS()
+    test_time_series()

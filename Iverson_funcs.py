@@ -335,8 +335,15 @@ def psi_dimensional_t_transient(Z, beta, d, Iz_over_Kz, D_hat, t, T):
 # and a rainfall rate. 
 # It then superposes these to get the Psi value at a given time
 #==============================================================================
-def psi_dimensional_from_time_series(durations,intensities,Z, beta, d, Iz_over_Kz, D_hat, t):
+def psi_dimensional_from_time_series(durations,intensities,Z, beta, d, D_hat, t):
     
+    # this is the steady component of psi. Basically transient pressure builds 
+    # on top of this. Not clear where Iverson comes up with these numbers. 
+    steady_psi = beta * (Z - d)
+    cumulative_psi = np.asarray(steady_psi)
+        
+    
+    # Now we try to construct the transient pressure. 
     # loop through the record getting cumulative times
     starting_times = []
     starting_times.append(0)
@@ -367,13 +374,29 @@ def psi_dimensional_from_time_series(durations,intensities,Z, beta, d, Iz_over_K
         end_count = count-1     # The minus one is needed since we have counted past the end of the index
         
 
-    
-    
-    
     # okay, now get the transients from superposition 
-    # First we need to figure out how many of these    
+    # First we need to figure out how many of these we will need
+    print("end count is: " + str(end_count))
     
-
+    for i,time in enumerate(starting_times):
+        print("time is: "+str(time))
+        
+        eff_t = t-time
+        this_intensity = intensities[i]
+        this_duration = durations[i]
+        
+        print("Eff T: "+str(eff_t)+" and intensity is: "+str(this_intensity)+" and duration is: " +str(this_duration))
+        
+        # now get the psi values.
+        this_psi = psi_dimensional_t_transient(Z, beta, d, this_intensity, D_hat, eff_t, this_duration)
+        
+        cumulative_psi = np.add(cumulative_psi,this_psi)
+        
+        print("this psi is:")
+        print(this_psi)
+        
+        print ("cumulative psi is: ")
+        print(cumulative_psi)
 
 
 
@@ -458,7 +481,7 @@ def FS_fxn_t_T_Z(Zs, t_sec, T_sec, weight_of_water, weight_of_soil, alpha, cohes
     # get pressure
     this_psi = psi_dimensional_t(Zs, beta, d, Iz_over_Kz, D_hat, t_sec, T_sec)
 
-    # Correct Pis: it is limited by the beta curve (which is just the saturated pore pressure)    
+    # Correct Psi: it is limited by the beta curve (which is just the saturated pore pressure)    
     # NOTE IVERSON DOESN'T USE THIS IN HIS FIGURES EVEN THOUGH HE SAYS YOU SHOULD    
     corr_psi = Correct_psi(Zs,this_psi,beta)
     
