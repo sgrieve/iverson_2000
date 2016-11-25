@@ -224,6 +224,8 @@ def test_time_series():
 
     # These are some characteristics of the slope. they come from the Minor Creek Landslide
     alpha = math.radians(15.)
+    print("alpha is: "+str(alpha))    
+    
     friction_angle = math.radians(18)
 
     # Here are the rainfall intensities
@@ -233,6 +235,9 @@ def test_time_series():
 
     # set up the spatial coordinates
     Zs = np.linspace(0.01, 6., 10)
+    
+    print("Depths are: ")
+    print(Zs)    
     #Z = 0.01
     beta = IvF.Beta_fn(alpha, Iz_over_Kz_steady)
     
@@ -245,6 +250,21 @@ def test_time_series():
     Do = 0.000001
     D_hat = IvF.D_hat_fn(Do, alpha)
 
+    ts = IvF.weeks_to_secs(11)
+    print("ts is: "+str(ts))
+    psi = IvF.psi_dimensional_from_time_series(durations_sec,Intensities,Zs, beta, d, D_hat, ts)
+    
+    print("durations_sec:")
+    print(durations_sec)       
+    
+    print("Psi is:")
+    print(psi)
+
+
+    
+    
+
+'''
     Fig1 = plt.figure(1, facecolor='white', figsize=(10, 8))
 
     Fig1.gca().invert_yaxis()
@@ -270,7 +290,7 @@ def test_time_series():
     # 
 
     #plt.show()
-
+'''
 
 if __name__ == "__main__":
     #compare_linear_to_loop()

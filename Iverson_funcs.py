@@ -326,6 +326,8 @@ def psi_dimensional_t_transient(Z, beta, d, Iz_over_Kz, D_hat, t, T):
         # Now calculate psi on the basis of the dimensional psi
         this_psi = psi_transient(z, beta, d, Iz_over_Kz, t_star, T_star)
         psi_dimensional.append(this_psi)
+        
+        print("z: "+str(z)+" t_star: "+str(t_star)+" T_star: "+ str(T_star))
 
     return psi_dimensional
 #==============================================================================
@@ -343,7 +345,9 @@ def psi_dimensional_from_time_series(durations,intensities,Z, beta, d, D_hat, t)
     cumulative_psi = np.asarray(steady_psi)
     print("steady psi is: ")
     print(steady_psi)
-        
+    
+
+    print("t is: "+str(t))    
     
     # Now we try to construct the transient pressure. 
     # loop through the record getting cumulative times
@@ -370,12 +374,24 @@ def psi_dimensional_from_time_series(durations,intensities,Z, beta, d, D_hat, t)
     # we don't need the last element
     del starting_times[-1]
     
+    print("HEYHEYHEY")
+    print(starting_times)    
+    
     # If we didn't find the end count it means the rainfall records have ended and we need
     # all of the data        
     if end_count_found == False:
         end_count = count-1     # The minus one is needed since we have counted past the end of the index
-        
-
+   
+    print("end count is: "+str(end_count))   
+   
+    print("\n\n\n\nStarting times")
+    print(starting_times)
+    print("durations")
+    print(durations)
+    print("intensities")
+    print(intensities) 
+    print("\n\n\n\n")
+   
     # okay, now get the transients from superposition 
     # First we need to figure out how many of these we will need
     #print("end count is: " + str(end_count))
@@ -387,11 +403,15 @@ def psi_dimensional_from_time_series(durations,intensities,Z, beta, d, D_hat, t)
             this_intensity = intensities[i]
             this_duration = durations[i]
         
-            #print("Eff T: "+str(eff_t)+" and intensity is: "+str(this_intensity)+" and duration is: " +str(this_duration))
+            print("\n\n\n\n")
+            print("Eff T: "+str(eff_t)+" and intensity is: "+str(this_intensity)+" and duration is: " +str(this_duration))
         
             # now get the psi values.
             this_psi = psi_dimensional_t_transient(Z, beta, d, this_intensity, D_hat, eff_t, this_duration)
         
+            print("this psi is:")
+            print(this_psi)            
+            print("\n\n\n\n")
             cumulative_psi = np.add(cumulative_psi,this_psi)
         
             #print("this psi is:")
