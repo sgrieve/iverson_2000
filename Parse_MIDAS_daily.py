@@ -3,6 +3,29 @@
 This script parses data derived from MIDAS weather station data
 Created on Tue Nov 22 16:38:15 2016
 
+
+HOW TO GET DATA
+Search for station here
+http://badc.nerc.ac.uk/search/midas_stations/
+
+Best way is to use postcode
+
+Get the station ID
+
+Go to the CEDA page
+http://wps-web1.ceda.ac.uk/ui/home
+
+Got to web processes
+
+select
+Extract weather station data
+
+Choose decadal output
+choose daily rainfall
+input station data
+
+wait
+
 @author: smudd
 """
 
