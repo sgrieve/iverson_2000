@@ -260,7 +260,15 @@ def test_time_series():
     print("Psi is:")
     print(psi)
 
-
+    weight_of_water = 9800
+    weight_of_soil = 19000
+    #alpha = math.radians(31)
+    cohesion = 500
+    friction_angle = math.radians(38)
+    print("Alpha: "+str(alpha)+ " and friction_angle: "+str(friction_angle))
+    FS = IvF.FS(psi, weight_of_water, weight_of_soil, alpha, cohesion, friction_angle, Zs)
+    print("The factor of safety is: ")
+    print(FS)
     
     
 
